@@ -21,8 +21,6 @@ figlet("Contoso CMS\n", function (err, data) {
 function init() {
 
     // Create connection to mysql database
-    connectSQL();
-
     function connectSQL() {
 
         // Setup local SQL database connection
@@ -48,7 +46,7 @@ function init() {
 
     function getInfo() {
         inquirer.prompt(menuOperator).then(answers => {
-            // check to see if we need to go back
+            connectSQL();
             switch (true) {
                 case ((answers.menu === 'View corporate data') && (answers.menuGet === 'View all departments')):
                     console.log(1);
@@ -98,9 +96,13 @@ function init() {
 
     function getAllDepartments() {
         connectSQL.query('SELECT * From department', (err, res) => {
-            if (err) throw err;
-            console.table(res);
-            // getInfo();
+            try {
+                console.table(res);
+                // quitProgram();
+                // getInfo();
+            } catch (error) {
+                throw Error(error);
+            };
         });
     };
 
@@ -112,8 +114,8 @@ function init() {
 
     // };
 
-    // function quitProgram() {
-    //     connectSQL.end();
-    //     process.exit();
-    // }
+    function quitProgram() {
+        connectSQL.end();
+        process.exit();
+    }
 };
