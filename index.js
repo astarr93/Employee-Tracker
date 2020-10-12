@@ -1,7 +1,8 @@
 const figlet = require("figlet");
-const mysql = require('mysql');
 const inquirer = require('inquirer');
-const { menuOperator } = require("./lib/questions");
+const cTable = require('console.table');
+const mysql = require('mysql');
+const { menuOperator } = require('./lib/inquirer');
 
 // ASCII Art to Start Program
 figlet("Contoso CMS\n", function (err, data) {
@@ -11,36 +12,38 @@ figlet("Contoso CMS\n", function (err, data) {
     else {
         console.log(data + "\nContoso Corp. Content Managment System");
     };
-    connectSQL();
+    init();
 });
 
-function connectSQL() {
 
-    // Setup local SQL database connection
-    const connectSQL = mysql.createConnection({
-        host: "localhost",
-        port: 3306,
-        user: "root",
-        password: "QiCpT@n#vD5w6U0LPDl0",
-        database: "company_db"
-    });
 
-    // Connect to SQL DB
-    connectSQL.connect((err) => {
-        if (err) throw err;
-        console.log(`\nConnected to Contoso Corp. MySQL database using thread: ${connectSQL.threadId}\n`);
-        init();
-    });
-
-};
-
-//  App Start
+//  App start
 function init() {
 
-    // Bring in all inquirer prompt questions
-    const questions = require('./lib/questions');
+    // Create connection to mysql database
+    connectSQL();
 
-    // node inquirer package collects user response, generates output
+    function connectSQL() {
+
+        // Setup local SQL database connection
+        const connectSQL = mysql.createConnection({
+            host: "localhost",
+            port: 3306,
+            user: "root",
+            password: "QiCpT@n#vD5w6U0LPDl0",
+            database: "company_db"
+        });
+
+        // Connect to SQL DB
+        connectSQL.connect((err) => {
+            if (err) throw err;
+            console.log(`\nConnected to Contoso Corp. MySQL database using thread: ${connectSQL.threadId}\n`);
+            init();
+        });
+
+    };
+
+    // Node.js pkg inquirer collects user response to generate output
     getInfo();
 
     function getInfo() {
@@ -53,41 +56,64 @@ function init() {
                     break;
                 case ((answers.menu === 'View corporate data') && (answers.menuGet === 'View all employees')):
                     console.log(2);
-                    getAllEmployees();
+                    // getAllEmployees();
                     break;
                 case ((answers.menu === 'View corporate data') && (answers.menuGet === 'View all roles')):
                     console.log(3);
-                    getAllRoles();
+                    // getAllRoles();
                     break;
                 case ((answers.menu === 'Add corporate data') && (answers.menuAdd === 'Add new department')):
                     console.log(4);
-                    addNewDepartment();
+                    // addNewDepartment();
                     break;
                 case ((answers.menu === 'Add corporate data') && (answers.menuAdd === 'Add new employee')):
                     console.log(5);
-                    addNewEmployee();
+                    // addNewEmployee();
                     break;
                 case ((answers.menu === 'Add corporate data') && (answers.menuAdd === 'Add new role')):
                     console.log(6);
-                    addNewRole();
+                    // addNewRole();
                     break;
                 case ((answers.menu === 'Update corporate data') && (answers.menuUpdate === 'Update employee manager')):
                     console.log(7);
-                    UpdateEmployeeManager();
+                    // UpdateEmployeeManager();
                     break;
                 case ((answers.menu === 'Update corporate data') && (answers.menuUpdate === 'Update employee role')):
                     console.log(8);
-                    UpdateEmployeeRole();
+                    // UpdateEmployeeRole();
                     break;
                 case ((answers.menu === 'Delete corporate data') && (answers.menuDelete === 'DELETE employee manager')):
                     console.log(10);
-                    deleteEmployeeManager();
+                    // deleteEmployeeManager();
                     break;
                 case ((answers.menu === 'Delete corporate data') && (answers.menuDelete === 'DELETE employee role')):
                     console.log(11);
-                    deleteEmployeeRole();
+                    // deleteEmployeeRole();
                     break;
             };
         });
     };
+
+    // View Corporate Data Functions
+
+    function getAllDepartments() {
+        connectSQL.query('SELECT * From department', (err, res) => {
+            if (err) throw err;
+            console.table(res);
+            // getInfo();
+        });
+    };
+
+    // function getAllEmployees() {
+
+    // };
+
+    // function getAllRoles() {
+
+    // };
+
+    // function quitProgram() {
+    //     connectSQL.end();
+    //     process.exit();
+    // }
 };
