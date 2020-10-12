@@ -13,6 +13,24 @@ figlet("Employee Management System", function (err, data) {
 });
 
 //  App Start
-// function init() {
+function init() {
 
-// }''
+    const questions = require('./lib/questions');
+
+    // node inquirer package collects user response, generates output
+    getInfo();
+
+    function getInfo() {
+        inquirer.prompt(questions).then(answers => {
+            // check to see if we need to go back
+            if (answers.hasMore !== false) {
+                // function(answers);
+                getInfo();
+            }
+            else {
+                // function(answers);
+                // function(answers);
+            };
+        });
+    };
+} ''
