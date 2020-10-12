@@ -98,11 +98,11 @@ function init() {
         connectSQL.query('SELECT * From department', (err, res) => {
             try {
                 console.table(res);
-                // quitProgram();
-                // getInfo();
             } catch (error) {
                 throw Error(error);
             };
+            // quitProgram();
+            // getInfo();
         });
     };
 
