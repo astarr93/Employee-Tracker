@@ -5,12 +5,12 @@ const mysql = require('mysql');
 const { menuOperator } = require('./lib/inquirer');
 
 // ASCII Art to Start Program
-figlet("Contoso CMS\n", function (err, data) {
+figlet("Employee\n  Manager", function (err, data) {
     if (err) {
         console.log(err);
     }
     else {
-        console.log(data + "\nContoso Corp. Content Managment System");
+        console.log(data + "\n");
     };
     init();
 });
