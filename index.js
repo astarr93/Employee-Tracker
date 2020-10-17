@@ -36,7 +36,6 @@ function init() {
         connectSQL.connect((err) => {
             if (err) throw err;
             console.log(`\nConnected to Contoso Corporation Employee Tracking System. Powered by MySQL DB using thread: ${connectSQL.threadId}\n`);
-            init();
         });
 
     };
