@@ -1,4 +1,4 @@
-use employees;
+USE company_db
 
 INSERT INTO department
     (name)

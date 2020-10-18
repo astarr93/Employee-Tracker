@@ -17,41 +17,32 @@ figlet("Employee\n  Manager", function (err, data) {
 });
 
 
-
-
 //  App start
 function init() {
-    
+
+    // Prep local SQL database connection by reading .env
+    dotenv.config();
+    const connectSQL = mysql.createConnection({
+        host: process.env.host,
+        port: process.env.port,
+        user: process.env.user,
+        password: process.env.password,
+        database: process.env.database
+    });
+
     // Create connection to mysql database
-    function connectSQL() {
-        
-        // Setup local SQL database connection
-        dotenv.config();
-        const connectSQL = mysql.createConnection({
-            host: process.env.host,
-            port: process.env.port,
-            user: process.env.user,
-            password: process.env.password,
-            database: process.env.db
-        });
 
-        // Connect to SQL DB
-        connectSQL.connect((err) => {
-            if (err) throw err;
-        });
+    connectSQL.connect((err) => {
+        if (err) throw err;
+    });
 
-    };
-    console.log(process.env.password);
+    // Use inquirer.js to interact with database
+    menu();
 
-    // Node.js pkg inquirer collects user response to generate output
-    getInfo();
-
-    function getInfo() {
+    function menu() {
         inquirer.prompt(menuOperator).then(answers => {
-            connectSQL();
             switch (true) {
                 case ((answers.menu === 'View corporate data') && (answers.menuGet === 'View all departments')):
-                    console.log(1);
                     getAllDepartments();
                     break;
                 case ((answers.menu === 'View corporate data') && (answers.menuGet === 'View all employees')):
@@ -99,15 +90,20 @@ function init() {
     function getAllDepartments() {
         connectSQL.query('SELECT * FROM department', (err, results) => {
             if (err) throw (err);
+            console.log('\n');
             console.table(results);
-            // quitProgram();
-            getInfo();
+            menu();
         });
     };
 
-    // function getAllEmployees() {
-
-    // };
+    function getAllEmployees() {
+        connectSQL.query('SELECT * FROM employee', (err, results) => {
+            if (err) throw (err);
+            console.log('\n');
+            console.table(results);
+            menu();
+        });
+    };
 
     // function getAllRoles() {
 
