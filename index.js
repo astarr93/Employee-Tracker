@@ -25,11 +25,11 @@ function init() {
 
         // Setup local SQL database connection
         const connectSQL = mysql.createConnection({
-            host: "localhost",
-            port: 3306,
-            user: "root",
-            password: "QiCpT@n#vD5w6U0LPDl0",
-            database: "company_db"
+            host: process.env.host,
+            port: process.env.port,
+            user: process.env.user,
+            password: process.env.password,
+            database: process.env.db
         });
 
         // Connect to SQL DB
@@ -93,7 +93,6 @@ function init() {
     // View Corporate Data Functions
 
     function getAllDepartments() {
-        const query = ()
         connectSQL.query('SELECT * From department', (err, res) => {
             try {
                 console.table(res);
