@@ -2,7 +2,7 @@ const figlet = require("figlet");
 const inquirer = require('inquirer');
 const cTable = require('console.table');
 const mysql = require('mysql');
-const { menuOperator } = require('./lib/inquirer');
+const { menuOperator, newEmployeeSurvey } = require('./lib/inquirer');
 const dotenv = require('dotenv');
 
 // ASCII Art to Start Program
@@ -43,21 +43,19 @@ function init() {
         inquirer.prompt(menuOperator).then(answers => {
             switch (true) {
                 case ((answers.menu === 'View corporate data') && (answers.menuGet === 'View all departments')):
-                    getAllDepartments();
+                    viewAllDepartments();
                     break;
                 case ((answers.menu === 'View corporate data') && (answers.menuGet === 'View all employees')):
-                    getAllEmployees();
+                    viewAllEmployees();
                     break;
                 case ((answers.menu === 'View corporate data') && (answers.menuGet === 'View all roles')):
-                    getAllRoles();
+                    viewAllRoles();
                     break;
                 case ((answers.menu === 'Add corporate data') && (answers.menuAdd === 'Add new department')):
-                    console.log(4);
                     // addNewDepartment();
                     break;
                 case ((answers.menu === 'Add corporate data') && (answers.menuAdd === 'Add new employee')):
-                    console.log(5);
-                    // addNewEmployee();
+                    addNewEmployee();
                     break;
                 case ((answers.menu === 'Add corporate data') && (answers.menuAdd === 'Add new role')):
                     console.log(6);
@@ -85,47 +83,101 @@ function init() {
 
     // View Corporate Data Functions
 
-    function getAllDepartments() {
+    function viewAllDepartments() {
         connection.query('SELECT id AS "Id", name AS "Name" FROM department', (err, results) => {
             if (err) throw (err);
             console.log('\n');
             console.table(results);
-            menu();
         });
+        menu();
     };
 
-    function getAllEmployees() {
+    function viewAllEmployees() {
         connection.query(
             `SELECT e.id AS "Id",
                 CONCAT(e.first_name, " ", e.last_name) AS "Name",
                 r.title AS "Title",
                 d.name AS "Department",
                 r.salary AS "Salary",
-                CONCAT (m.first_name, " ", m.last_name) AS "Manager",
-             IFNULL(e.manager_id, 'n/a') AS "Manager"
+                CONCAT(m.first_name, " ", m.last_name) AS "Manager"
              FROM employee e
              LEFT JOIN role r
              ON r.id = e.role_id
              LEFT JOIN department d
              ON d.id = r.department_id
              LEFT JOIN employee m
-             ON m.id = e.manager_id`, (err, results) => {
+             ON m.id = e.manager_id
+             ORDER by e.id`, (err, results) => {
             if (err) throw (err);
             console.log('\n');
-            let test = results
-            // console.log(test);
             console.table(results);
-            menu();
+        });
+        menu();
+    };
+
+    function viewAllRoles() {
+        connection.query(
+            `SELECT r.id AS "Id",
+                r.title AS "Title",
+                r.salary AS "Salary",
+                d.name AS "Department"
+            FROM role r
+            LEFT JOIN department d
+            ON d.id = r.department_id
+            `, (err, results) => {
+            if (err) throw (err);
+            console.log('\n');
+            console.table(results);
+        });
+        menu();
+    };
+
+    // Get Corporate Data Functions
+
+    function getRoles() {
+        connection.query(
+            `SELECT r.title
+            FROM role r
+            `, (err, results) => {
+            if (err) throw (err);
+            // Store all returned rows in a var
+            const objectifyRawPacket = row => ({ ...row });
+            // Iterate through each row to convert from raw packet -> js object
+            const convertedResults = results.map(objectifyRawPacket);
+            // Iterate through once more to format data for inquirer.js
+            const trimResults = [];
+            convertedResults.forEach(item => {
+                trimResults.push(item.title);
+            });
+            let roles = JSON.stringify(trimResults);
+            // Export out all possible selections for user
+            module.exports = roles;
+            console.log(roles);
+            console.log(typeof roles);
+            return
         });
     };
 
-    function getAllRoles() {
-        connection.query('SELECT  FROM role', (err, results) => {
-            if (err) throw (err);
-            console.log('\n');
-            console.table(results);
-            menu();
+    // Add Corporate Data Functions
+
+    function addNewEmployee() {
+        getRoles();
+        inquirer.prompt(newEmployeeSurvey).then(answers => {
+            console.log("success");
+            //     // connection.query(
+            //     //     `SELECT r.id AS "Id",
+            //     //         r.title AS "Title",
+            //     //         r.salary AS "Salary",
+            //     //         d.name AS "Department"
+            //     //     FROM role r
+            //     //     LEFT JOIN department d
+            //     //     ON d.id = r.department_id
+            //     //     `, (err, results) => {
+            //     //     if (err) throw (err);
+            //     //     console.log('\n');
+            //     //     console.table(results);
         });
+        // menu();
     };
 
     // function quitProgram() {
