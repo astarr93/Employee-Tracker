@@ -2,8 +2,9 @@ const figlet = require("figlet");
 const inquirer = require('inquirer');
 const cTable = require('console.table');
 const mysql = require('mysql');
-const { menuOperator, newEmployeeSurvey } = require('./lib/inquirer');
+const { menuOperator } = require('./lib/inquirer');
 const dotenv = require('dotenv');
+
 
 // ASCII Art to Start Program
 figlet("Employee\n  Manager", function (err, data) {
@@ -132,12 +133,14 @@ function init() {
         menu();
     };
 
-    // Get Corporate Data Functions
+    // Add Corporate Data Functions
 
     function getRoles() {
         connection.query(
-            `SELECT r.title
+            `
+            SELECT r.title
             FROM role r
+            ORDER BY r.id
             `, (err, results) => {
             if (err) throw (err);
             // Store all returned rows in a var
@@ -149,21 +152,41 @@ function init() {
             convertedResults.forEach(item => {
                 trimResults.push(item.title);
             });
-            let roles = JSON.stringify(trimResults);
-            // Export out all possible selections for user
-            module.exports = roles;
-            console.log(roles);
-            console.log(typeof roles);
-            return
+            // Create Array from trimResults to make list possible role choices
+            return Array.from(Object.values(trimResults));
         });
     };
 
-    // Add Corporate Data Functions
 
     function addNewEmployee() {
-        getRoles();
-        inquirer.prompt(newEmployeeSurvey).then(answers => {
-            console.log("success");
+        let roles = getRoles();
+        // Prompt for answers to create new employee
+        inquirer.prompt([
+            {
+                type: "input",
+                name: "first_name",
+                message: "What is the new employee's first name?",
+            },
+            {
+                type: "input",
+                name: "last_name",
+                message: "What is the new employee's last name?",
+            },
+            {
+                type: "rawlist",
+                name: "role",
+                message: "What is the new employee's title?",
+                choices: roles,
+            },
+            {
+                type: "rawlist",
+                name: "manager",
+                message: "Who is the new employee's direct manager?",
+                choices: roles,
+            }
+        ]).then(answers => {
+            console.log(roles);
+            console.log(answers);
             //     // connection.query(
             //     //     `SELECT r.id AS "Id",
             //     //         r.title AS "Title",
@@ -177,7 +200,6 @@ function init() {
             //     //     console.log('\n');
             //     //     console.table(results);
         });
-        // menu();
     };
 
     // function quitProgram() {
