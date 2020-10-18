@@ -3,6 +3,7 @@ const inquirer = require('inquirer');
 const cTable = require('console.table');
 const mysql = require('mysql');
 const { menuOperator } = require('./lib/inquirer');
+const dotenv = require('dotenv');
 
 // ASCII Art to Start Program
 figlet("Employee\n  Manager", function (err, data) {
@@ -17,13 +18,15 @@ figlet("Employee\n  Manager", function (err, data) {
 
 
 
+
 //  App start
 function init() {
-
+    
     // Create connection to mysql database
     function connectSQL() {
-
+        
         // Setup local SQL database connection
+        dotenv.config();
         const connectSQL = mysql.createConnection({
             host: process.env.host,
             port: process.env.port,
@@ -38,6 +41,7 @@ function init() {
         });
 
     };
+    console.log(process.env.password);
 
     // Node.js pkg inquirer collects user response to generate output
     getInfo();
@@ -93,14 +97,11 @@ function init() {
     // View Corporate Data Functions
 
     function getAllDepartments() {
-        connectSQL.query('SELECT * From department', (err, res) => {
-            try {
-                console.table(res);
-            } catch (error) {
-                throw Error(error);
-            };
+        connectSQL.query('SELECT * FROM department', (err, results) => {
+            if (err) throw (err);
+            console.table(results);
             // quitProgram();
-            // getInfo();
+            getInfo();
         });
     };
 
