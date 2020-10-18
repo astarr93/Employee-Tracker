@@ -22,7 +22,7 @@ function init() {
 
     // Prep local SQL database connection by reading .env
     dotenv.config();
-    const connectSQL = mysql.createConnection({
+    const connection = mysql.createConnection({
         host: process.env.host,
         port: process.env.port,
         user: process.env.user,
@@ -32,7 +32,7 @@ function init() {
 
     // Create connection to mysql database
 
-    connectSQL.connect((err) => {
+    connection.connect((err) => {
         if (err) throw err;
     });
 
@@ -46,12 +46,10 @@ function init() {
                     getAllDepartments();
                     break;
                 case ((answers.menu === 'View corporate data') && (answers.menuGet === 'View all employees')):
-                    console.log(2);
-                    // getAllEmployees();
+                    getAllEmployees();
                     break;
                 case ((answers.menu === 'View corporate data') && (answers.menuGet === 'View all roles')):
-                    console.log(3);
-                    // getAllRoles();
+                    getAllRoles();
                     break;
                 case ((answers.menu === 'Add corporate data') && (answers.menuAdd === 'Add new department')):
                     console.log(4);
@@ -88,7 +86,7 @@ function init() {
     // View Corporate Data Functions
 
     function getAllDepartments() {
-        connectSQL.query('SELECT * FROM department', (err, results) => {
+        connection.query('SELECT id AS "Id", name AS "Name" FROM department', (err, results) => {
             if (err) throw (err);
             console.log('\n');
             console.table(results);
@@ -97,7 +95,32 @@ function init() {
     };
 
     function getAllEmployees() {
-        connectSQL.query('SELECT * FROM employee', (err, results) => {
+        connection.query(
+            `SELECT e.id AS "Id",
+                CONCAT(e.first_name, " ", e.last_name) AS "Name",
+                r.title AS "Title",
+                d.name AS "Department",
+                r.salary AS "Salary",
+                CONCAT (m.first_name, " ", m.last_name) AS "Manager",
+             IFNULL(e.manager_id, 'n/a') AS "Manager"
+             FROM employee e
+             LEFT JOIN role r
+             ON r.id = e.role_id
+             LEFT JOIN department d
+             ON d.id = r.department_id
+             LEFT JOIN employee m
+             ON m.id = e.manager_id`, (err, results) => {
+            if (err) throw (err);
+            console.log('\n');
+            let test = results
+            // console.log(test);
+            console.table(results);
+            menu();
+        });
+    };
+
+    function getAllRoles() {
+        connection.query('SELECT  FROM role', (err, results) => {
             if (err) throw (err);
             console.log('\n');
             console.table(results);
@@ -105,12 +128,8 @@ function init() {
         });
     };
 
-    // function getAllRoles() {
-
-    // };
-
-    function quitProgram() {
-        connectSQL.end();
-        process.exit();
-    }
+    // function quitProgram() {
+    //     connectSQL.end();
+    //     process.exit();
+    // }
 };
