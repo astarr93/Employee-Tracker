@@ -93,6 +93,7 @@ function init() {
     // View Corporate Data Functions
 
     function getAllDepartments() {
+        const query = ()
         connectSQL.query('SELECT * From department', (err, res) => {
             try {
                 console.table(res);
