@@ -34,6 +34,8 @@ function init() {
     // Prep local SQL database connection by reading .env
     dotenv.config();
     const connection = mysql.createConnection({
+        // Multiple statements should be off to prevent SQL Injection attacks, but 🤷‍♂️
+        multipleStatements: true,
         host: process.env.host,
         port: process.env.port,
         user: process.env.user,
@@ -325,16 +327,14 @@ function init() {
                 console.log(`\n\n${answers.role} has been successfully added to the database.\n\n`);
                 connection.end();
             });
-            menu();
         });
     };
 
 
 
     // Update corporate data functions
-    async function UpdateEmployeeManager() {
-
-    };
+    // async function UpdateEmployeeManager() {
+    // };
 
     async function UpdateEmployeeRole() {
         // Get data to prepare inquirer.js and conversions
@@ -366,7 +366,7 @@ function init() {
                 name: "person",
                 message: "Which employee's role do you wish to update?",
                 choices: employees,
-            }
+            },
             {
                 type: "rawlist",
                 name: "role",
@@ -376,28 +376,27 @@ function init() {
         ]).then(answers => {
             // Prep MySQL INSERT by converting user selection to match schema
             rolesObj.forEach(entry => {
-                if (entry.title === answers.role) {
+                if (answers.role === entry.title) {
                     answers.role = entry.id;
                 };
             });
             employeesObj.forEach(entry => {
-                if (entry.Name === answers.manager) {
-                    answers.manager = entry.id;
+                console.log(entry)
+                if (answers.person === entry.Name) {
+                    answers.person = entry.id;
                 };
             });
-            const query = "INSERT INTO employee SET ?";
-            connection.query(query, { first_name: answers.first_name, last_name: answers.last_name, role_id: answers.role, manager_id: answers.manager }, (err, results) => {
+            const query = `UPDATE employee SET ? WHERE id=${answers.person}`;
+            connection.query(query, { role_id: answers.role }, (err, results) => {
                 if (err) throw (err);
-                console.log(`\n\n${answers.first_name} ${answers.last_name} has been successfully added to the database.\n\n`);
+                console.log(`\n\n$The employee's role has been successfully updated...\n\n`);
                 connection.end();
             });
-            menu();
         });
     };
-};
 
-    // function terminate() {
-    //     connection.end();
-    //     process.exit();
-    // };
+    function terminate() {
+        connection.end();
+        process.exit();
+    };
 };
